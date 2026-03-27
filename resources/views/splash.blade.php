@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rento - Splash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #EAF3FB;
+            --logo-blue: #1E62B7;
+            --brand-blue: #2B7FE6;
+            --shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            font-family: 'Cairo', system-ui, sans-serif;
+        }
+
+        .wrap {
+            text-align: center;
+        }
+
+        .logo-box {
+            width: 160px;
+            height: 160px;
+            border-radius: 32px;
+            background: #2368BF;
+            box-shadow: var(--shadow);
+            display: grid;
+            place-items: center;
+            margin: 0 auto 28px;
+        }
+
+        .logo-box img {
+            width: 88px;
+            height: 88px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 52px;
+            letter-spacing: 4px;
+            color: var(--brand-blue);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .hint { color: #667085; margin-top: 8px; }
+
+        .progress {
+            width: 160px;
+            height: 4px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 999px;
+            margin: 24px auto 0;
+            overflow: hidden;
+        }
+        .bar {
+            width: 0%;
+            height: 100%;
+            background: var(--brand-blue);
+            border-radius: inherit;
+            transition: width 0.4s ease;
+        }
+        .cta {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: white;
+            color: var(--brand-blue);
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap" role="main">
+        <div class="logo-box" aria-label="Rento logo">
+            <img src="/images/rento-logo.svg" alt="Rento">
+        </div>
+        <img src="/images/rento-text.svg" alt="Rento">
+        <div class="hint">جارٍ التحميل...</div>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <a class="cta" id="skip" href="#">تخطي</a>
+    </div>
+
+    <script>
+        (function(){
+            const bar = document.getElementById('bar');
+            const skip = document.getElementById('skip');
+            const target = {
+                adminAuthenticated: "{{ route('dashboard.index') }}",
+                guest: "{{ route('admin.login') }}"
+            };
+
+            // تقدّم بسيط ثم تحويل تلقائي
+            let p = 0; const timer = setInterval(function(){
+                p = Math.min(100, p + 14);
+                bar.style.width = p + '%';
+                if(p >= 100){ clearInterval(timer); redirect(); }
+            }, 220);
+
+            function redirect(){
+                @if(auth('admin')->check())
+                    window.location.href = target.adminAuthenticated;
+                @elseif(!auth()->check())
+                    window.location.href = target.guest;
+                @else
+                    // مستخدم مصادق بحارس الويب: لا تحويل تلقائي
+                @endif
+            }
+
+            skip.addEventListener('click', function(e){ e.preventDefault(); redirect(); });
+        })();
+    </script>
+</body>
+</html>
